@@ -1,0 +1,5 @@
+$kind: http-request
+name: Delete User
+url: http://localhost:8080/users/2
+method: DELETE
+order: 3966804484137503

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Create User
+url: http://localhost:8080/users
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "name": "Susan",
+      "email": "susan@test.com",
+      "password": "1234",
+      "role": "USER"
+    }
+order: 2870531214890992

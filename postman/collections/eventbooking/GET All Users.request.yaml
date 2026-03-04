@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET All Users
+url: http://localhost:8080/users
+method: GET
+order: 2948615785656724

@@ -1,0 +1,6 @@
+$kind: collection
+name: eventbooking
+auth:
+  - id: 6503bf6a-6cd8-43f7-994f-8fd35c7b5007
+    type: noauth
+    name: No Auth

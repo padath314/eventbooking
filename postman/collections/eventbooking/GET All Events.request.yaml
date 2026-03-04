@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET All Events
+url: http://localhost:8080/api/events
+method: GET
+order: 4215560208453676

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Update User
+url: http://localhost:8080/users/1
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "name": "Susan Padath",
+      "email": "susanp@example.com",
+      "password": "1234",
+      "role": "ADMIN"
+    }
+order: 3817078097514749

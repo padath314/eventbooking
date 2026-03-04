@@ -1,0 +1,14 @@
+$kind: http-request
+name: Create User 1
+url: http://localhost:8080/users
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "name": "Ruby",
+      "email": "ruby@test.com",
+      "password": "1234",
+      "role": "USER"
+    }
+order: 2898509729279178

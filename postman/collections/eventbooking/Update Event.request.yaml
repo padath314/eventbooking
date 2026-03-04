@@ -1,0 +1,17 @@
+$kind: http-request
+name: Update Event
+url: http://localhost:8080/events/1
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "title": "Advanced Spring Boot",
+      "description": "JPA + Security",
+      "location": "Osaka",
+      "eventDate": "2026-03-20",
+      "createdBy": {
+        "id": 1
+      }
+    }
+order: 4401827747120389
