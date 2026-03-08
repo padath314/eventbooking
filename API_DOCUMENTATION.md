@@ -6,6 +6,135 @@
 
 ---
 
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         CLIENT LAYER                                 │
+│  (Web Browser, Mobile App, Postman, cURL, REST Clients)             │
+└────────────────┬─────────────────────────────────────────────────────┘
+                 │
+                 │ HTTP Request (POST/GET/PUT/DELETE)
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   AUTHENTICATION LAYER                                 │
+│  ┌──────────────────────────────────────────────────────────────────┐ │
+│  │ 1. /api/auth/register  →  AuthController  →  Create User        │ │
+│  │ 2. /api/auth/login     →  AuthController  →  Generate JWT       │ │
+│  │ 3. Request with Bearer Token  →  JwtRequestFilter  →  Validate  │ │
+│  │ 4. SecurityConfig  →  Authorize Routes  →  Grant/Deny Access   │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+└────────────────┬──────────────────────────────────────────────────────┘
+                 │
+                 │ Authenticated Request
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   CONTROLLER LAYER (REST Endpoints)                    │
+│  ┌────────────────────────────────────────────────────────────────┐   │
+│  │ • AuthController           → POST /api/auth/register, login   │   │
+│  │ • UserController           → CRUD /users/*                    │   │
+│  │ • EventController          → CRUD /api/events/*               │   │
+│  │ • BookingController        → CRUD /bookings/*                 │   │
+│  └────────────────────────────────────────────────────────────────┘   │
+└────────────────┬──────────────────────────────────────────────────────┘
+                 │
+                 │ Call Services
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   SERVICE LAYER (Business Logic)                       │
+│  ┌────────────────────────────────────────────────────────────────┐   │
+│  │ • AuthService              → register(), login()               │   │
+│  │ • EventService             → CRUD operations, validation       │   │
+│  │ • UserService              → User management logic             │   │
+│  │ • BookingService           → Booking logic & rules             │   │
+│  └────────────────────────────────────────────────────────────────┘   │
+└────────────────┬──────────────────────────────────────────────────────┘
+                 │
+                 │ Query/Persist Data
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   REPOSITORY LAYER (Data Access)                       │
+│  ┌────────────────────────────────────────────────────────────────┐   │
+│  │ • UserRepository (Spring Data JPA)  → User CRUD               │   │
+│  │ • EventRepository (Spring Data JPA) → Event CRUD              │   │
+│  │ • BookingRepository (Spring Data JPA) → Booking CRUD          │   │
+│  └────────────────────────────────────────────────────────────────┘   │
+└────────────────┬──────────────────────────────────────────────────────┘
+                 │
+                 │ Map to/from Entities
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   DATA MODEL LAYER (JPA Entities)                      │
+│  ┌────────────────────────────────────────────────────────────────┐   │
+│  │ @Entity User         @Entity Event       @Entity Booking      │   │
+│  │ - id (PK)            - id (PK)           - id (PK)            │   │
+│  │ - name               - title             - user_id (FK)       │   │
+│  │ - email (Unique)     - description       - event_id (FK)      │   │
+│  │ - password (Hashed)  - location          - bookingTime        │   │
+│  │ - role               - eventDate         - status             │   │
+│  │ - createdAt          - created_by (FK)   - bookingTime        │   │
+│  └────────────────────────────────────────────────────────────────┘   │
+└────────────────┬──────────────────────────────────────────────────────┘
+                 │
+                 │ SQL Queries
+                 │
+┌────────────────▼──────────────────────────────────────────────────────┐
+│                   DATABASE LAYER (MySQL)                               │
+│  ┌────────────────────────────────────────────────────────────────┐   │
+│  │ MySQL Database: eventbooking                                   │   │
+│  │ Host: localhost:3306                                           │   │
+│  │ Tables: users, events, bookings                                │   │
+│  │ Connection: root:root123                                       │   │
+│  └────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend Framework** | Spring Boot 4.0.3 |
+| **Java Version** | Java 17 LTS |
+| **Security** | Spring Security 7.0.3 + JWT (JJWT 0.11.5) |
+| **Password Hashing** | BCrypt |
+| **ORM** | Spring Data JPA / Hibernate |
+| **Database** | MySQL 8.0+ |
+| **Build Tool** | Maven |
+| **Logging** | SLF4J + Logback |
+
+### Request Flow Example
+
+```
+1. Client sends request: POST /api/auth/login
+                        ↓
+2. Spring receives and routes to AuthController.login()
+                        ↓
+3. Controller validates input and calls AuthService.login()
+                        ↓
+4. Service authenticates user, checks password with BCrypt, generates JWT
+                        ↓
+5. Service calls UserRepository.findByEmail()
+                        ↓
+6. Repository executes SQL query against MySQL database
+                        ↓
+7. User entity returned from database
+                        ↓
+8. AuthService generates JWT token with user email as subject
+                        ↓
+9. AuthResponse with token sent back to client
+                        ↓
+10. Client receives token and stores it
+                        ↓
+11. For protected requests: Client includes "Authorization: Bearer {token}"
+                        ↓
+12. JwtRequestFilter intercepts request, validates token
+                        ↓
+13. If valid: Request continues to controller
+    If invalid: 401 Unauthorized returned
+```
+
+---
+
 ## Table of Contents
 
 1. [Authentication APIs](#authentication-apis)
